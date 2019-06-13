@@ -40,11 +40,11 @@ namespace BCC.ViewModel
 			DiscordContainer = new CharacterContainer();
 
 			Compare = new RunMethod(CompareList, a => true);
-			LoadFile = new RunMethod(LoadDataFile, a => true);
-			DropFile = new RunMethod(a =>
+			LoadFile = new RunMethodAsync(LoadDataFile, a => true);
+			DropFile = new RunMethodAsync(async a =>
 			{
 				string[] filePaths = a as string[];
-				LoadFiles(filePaths);
+				await LoadFiles(filePaths);
 			}, a => true);
 		}
 
@@ -75,7 +75,7 @@ namespace BCC.ViewModel
 			OnPropertyChanged("Characters");
 		}
 
-		void LoadDataFile(object parameter)
+		async Task LoadDataFile(object parameter)
 		{
 			OpenFileDialog dlg = new OpenFileDialog();
 			dlg.DefaultExt = ".tsv";
@@ -84,31 +84,38 @@ namespace BCC.ViewModel
 			bool? result = dlg.ShowDialog();
 
 			if (result == true)
-				LoadFiles(dlg.FileNames);
+				await LoadFiles(dlg.FileNames);
 		}
 
-		void LoadFiles(string[] fileNames)
+		async Task LoadFiles(string[] fileNames)
 		{
 			foreach (string filePath in fileNames)
 			{
 				string name = Path.GetFileNameWithoutExtension(filePath);
-				string content = File.ReadAllText(filePath);
+				using (StreamReader reader = new StreamReader(filePath))
+				{
+					string content = await reader.ReadToEndAsync();
 
-				if (name.ToLower() == "gsf")
-					GsfContainer.ParseString(content);
+					if (name.ToLower() == "gsf")
+						await GsfContainer.ParseString(content);
 
-				if (name.ToLower() == "seat")
-					SeatContainer.ParseString(content);
+					if (name.ToLower() == "seat")
+						await SeatContainer.ParseString(content);
 
-				if (name.ToLower() == "discord")
-					DiscordContainer.ParseString(content);
+					if (name.ToLower() == "discord")
+						await DiscordContainer.ParseString(content);
+				}
 			}
 
 			if (GsfContainer.Characters.Count > 0
 				&& SeatContainer.Characters.Count > 0
 				&& DiscordContainer.Characters.Count > 0)
 			{
-				CompareList(null);
+				await App.Current.Dispatcher.Invoke(async () =>
+				{
+					CompareList(null);
+					await Task.CompletedTask;
+				});
 			}
 		}
 	}

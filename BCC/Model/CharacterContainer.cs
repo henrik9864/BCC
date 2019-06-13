@@ -24,10 +24,10 @@ namespace BCC.Model
 		public CharacterContainer()
 		{
 			Characters = new ObservableCollection<Character>();
-			Parse = new RunMethod(ParseString, a => a is string);
+			Parse = new RunMethodAsync(ParseString, a => a is string);
 		}
 
-		public void ParseString(object parameter)
+		public async Task ParseString(object parameter)
 		{
 			List<Character> characters;
 			try
@@ -40,13 +40,14 @@ namespace BCC.Model
 				return;
 			}
 
-			App.Current.Dispatcher.Invoke(delegate
+			await App.Current.Dispatcher.Invoke(async () =>
 			{
 				Characters.Clear();
 				for (int i = 0; i < characters.Count; i++)
 					Characters.Add(characters[i]);
 
 				OnPropertyChanged("SeatCharactersList");
+				await Task.CompletedTask;
 			});
 		}
 
