@@ -3,16 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:local="clr-namespace:BCC"
 		xmlns:vm="clr-namespace:BCC.ViewModel"
+		xmlns:converters="clr-namespace:BCC.Converters"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="700"
-		Background="LightGray">
-	<Window.DataContext>
+        Title="Bovril Character Checker" Height="450" Width="700"
+		Background="LightGray" Icon="Images/Bovril_128.png"
+        Drop="Grid_Drop" AllowDrop="True">
+    <Window.DataContext>
 		<vm:CharacterChecker/>
 	</Window.DataContext>
+    <Window.Resources>
+        <converters:BoolConverter x:Key="BoolImageConverter"/>
+    </Window.Resources>
     <Grid>
-		<Grid.ColumnDefinitions>
+        <Grid.ColumnDefinitions>
 			<ColumnDefinition MaxWidth="300"/>
 			<ColumnDefinition/>
 		</Grid.ColumnDefinitions>
@@ -65,19 +71,19 @@
 			</DockPanel>
 		</Grid>
 
-		<ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
-			<DataGrid Margin="0 5" ItemsSource="{Binding Characters}" AutoGenerateColumns="False">
-				<DataGrid.Columns>
-					<DataGridTextColumn Header="Character" MaxWidth="150"
-										Binding="{Binding Path=Name}" Width="*"/>
-					<DataGridTextColumn Header="Main" MaxWidth="200"
-										Binding="{Binding Path=Main}" Width="*"/>
-					<DataGridTextColumn Header="SeAT" MaxWidth="50"
-										Binding="{Binding Path=Seat}" Width="*"/>
-					<DataGridTextColumn Header="Discord" MaxWidth="60"
-										Binding="{Binding Path=Discord}" Width="*"/>
-				</DataGrid.Columns>
-			</DataGrid>
-		</ScrollViewer>
+        <DataGrid Grid.Column="1" Margin="0 5" IsReadOnly="True"
+                  ItemsSource="{Binding Characters}"
+                  CanUserAddRows="False" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Character" MaxWidth="150"
+									Binding="{Binding Path=Name}" Width="*"/>
+                <DataGridTextColumn Header="Main" MaxWidth="200"
+									Binding="{Binding Path=Main}" Width="*"/>
+                <DataGridTextColumn Header="SeAT" MaxWidth="50"
+									Binding="{Binding Path=Seat, Converter={StaticResource BoolImageConverter}}" Width="*"/>
+                <DataGridTextColumn Header="Discord" MaxWidth="60"
+									Binding="{Binding Path=Discord, Converter={StaticResource BoolImageConverter}}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>

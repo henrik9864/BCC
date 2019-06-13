@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -30,6 +31,8 @@ namespace BCC.ViewModel
 
 		public ICommand LoadFile { get; }
 
+		public ICommand DropFile { get; }
+
 		public CharacterChecker()
 		{
 			GsfContainer = new CharacterContainer();
@@ -38,6 +41,11 @@ namespace BCC.ViewModel
 
 			Compare = new RunMethod(CompareList, a => true);
 			LoadFile = new RunMethod(LoadDataFile, a => true);
+			DropFile = new RunMethod(a =>
+			{
+				string[] filePaths = a as string[];
+				LoadFiles(filePaths);
+			}, a => true);
 		}
 
 		void CompareList(object parameter)
@@ -55,7 +63,7 @@ namespace BCC.ViewModel
 					added = true;
 				}
 
-				if (character.Main == character.Name && !DiscordContainer.Characters.Any(a => a.Name.Replace(" ", "") == character.Main.Replace(" ", "")))
+				if (character.Main == character.Name && DiscordContainer.Characters.Count > 0 && !DiscordContainer.Characters.Any(a => a.Name.Replace(" ", "") == character.Main.Replace(" ", "")))
 				{
 					character.Discord = false;
 
@@ -76,21 +84,31 @@ namespace BCC.ViewModel
 			bool? result = dlg.ShowDialog();
 
 			if (result == true)
+				LoadFiles(dlg.FileNames);
+		}
+
+		void LoadFiles(string[] fileNames)
+		{
+			foreach (string filePath in fileNames)
 			{
-				foreach (string filePath in dlg.FileNames)
-				{
-					string name = Path.GetFileNameWithoutExtension(filePath);
-					string content = File.ReadAllText(filePath);
+				string name = Path.GetFileNameWithoutExtension(filePath);
+				string content = File.ReadAllText(filePath);
 
-					if (name.ToLower() == "gsf")
-						GsfContainer.ParseString(content);
+				if (name.ToLower() == "gsf")
+					GsfContainer.ParseString(content);
 
-					if (name.ToLower() == "seat")
-						SeatContainer.ParseString(content);
+				if (name.ToLower() == "seat")
+					SeatContainer.ParseString(content);
 
-					if (name.ToLower() == "discord")
-						DiscordContainer.ParseString(content);
-				}
+				if (name.ToLower() == "discord")
+					DiscordContainer.ParseString(content);
+			}
+
+			if (GsfContainer.Characters.Count > 0
+				&& SeatContainer.Characters.Count > 0
+				&& DiscordContainer.Characters.Count > 0)
+			{
+				CompareList(null);
 			}
 		}
 	}

@@ -1,6 +1,8 @@
-﻿using System;
+﻿using BCC.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -23,6 +25,12 @@ namespace BCC
 		public MainWindow()
 		{
 			InitializeComponent();
+		}
+
+		private void Grid_Drop(object sender, DragEventArgs e)
+		{
+			CharacterChecker vm = this.DataContext as CharacterChecker;
+			vm.DropFile.Execute(e.Data.GetData(DataFormats.FileDrop));
 		}
 	}
 }

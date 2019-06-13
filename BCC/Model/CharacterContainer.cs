@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace BCC.Model
@@ -28,13 +29,25 @@ namespace BCC.Model
 
 		public void ParseString(object parameter)
 		{
-			List<Character> characters = ParseTextBox(parameter as string);
+			List<Character> characters;
+			try
+			{
+				characters = ParseTextBox(parameter as string);
+			}
+			catch (Exception e)
+			{
+				MessageBox.Show($"Error: {e.Message}", "Error");
+				return;
+			}
 
-			Characters.Clear();
-			for (int i = 0; i < characters.Count; i++)
-				Characters.Add(characters[i]);
+			App.Current.Dispatcher.Invoke(delegate
+			{
+				Characters.Clear();
+				for (int i = 0; i < characters.Count; i++)
+					Characters.Add(characters[i]);
 
-			OnPropertyChanged("SeatCharactersList");
+				OnPropertyChanged("SeatCharactersList");
+			});
 		}
 
 		List<Character> ParseTextBox(string content)
@@ -45,6 +58,12 @@ namespace BCC.Model
 			Configuration config = new Configuration()
 			{
 				Delimiter = "\t",
+				HeaderValidated = (isValid, b, c, d) =>
+				{
+					if (!isValid)
+						throw new Exception("Header not found. Make sure you include headers in your tsv file.");
+				},
+				TrimOptions = TrimOptions.Trim,
 			};
 
 			using (var stream = StreamFromString(content))

@@ -65,7 +65,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Commands\RunMethod.cs" />
+    <Compile Include="Commands\RunMethodAsync.cs" />
+    <Compile Include="Converters\BoolConverter.cs" />
     <Compile Include="Data\Character.cs" />
+    <Compile Include="Interfaces\ICommandAsync.cs" />
     <Compile Include="Model\CharacterContainer.cs" />
     <Compile Include="Props\BaseProperty.cs" />
     <Compile Include="ViewModel\CharacterChecker.cs" />
@@ -109,6 +112,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\Bovril.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Bovril_128.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
